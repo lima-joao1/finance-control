@@ -1,29 +1,27 @@
 from Despesa import Despesa
 from Categoria import Categoria
 from ControleFinanceiro import ControleFinanceiro
-from time import sleep
-
-
-obj = Despesa(100, "education", "26/06/2026", "escola do luquinhas")
-print(obj)
-print(obj.get_value())
+from Usuario import Usuario
 
 control = ControleFinanceiro()
-education = Categoria("Educação", 3000)
-
 
 def get_command():
     print("*******  Controle Financeiro *******")
     print("""
         1 - Adicionar nova despesa
-        2 - Checar despesas\n""")
+        2 - Checar histórico mensal
+        3 - Começar novo mês
+        4 - Histórico completo\n
+        
+        0 - Fechar programa""")
 
-    return int(input("Digite uma opção [1, 2]: "))
+    return int(input("Digite uma opção [0, 4]: "))
 
-categories_tracker = []
+def command_manager(command, user):
+    
+    if (command == 1):
 
-def command_manager(command):
-    choices = {1 : "Educação",
+        choices = {1 : "Educação",
         2 : "Energia",
         3 : "Água",
         4 : "Internet",
@@ -32,8 +30,6 @@ def command_manager(command):
         7 : "Residência",
         8 : "Entretenimento"}
 
-
-    if (command == 1):
         print("""
         1 - Educação
         2 - Energia
@@ -53,31 +49,41 @@ def command_manager(command):
             
         category_name = choices[choice]
 
-
-        if category_name not in control.get_dictionary().keys():
-            print(f"O dicionário que associa nome da categoria a um obj de categoria não tem {category_name}")
-            print("Criando novo objeto da classe categoria e adicionando-o ao dicionário:")
-            print("Categoria ainda não registrada.")
-            limit = int(input(f"Limite mensal de gastos com {category_name.lower()}: R$ "))
-            category = Categoria(category_name, limit)
-            control.add_category(category_name, category)
-
-        else:
-            print("Categoria já cadastrada. Resgatando...")
-            for category_key, category_value in control.get_dictionary().items():
-                if (category_key == category_name):
-                    category = category_value
-
+        category = register_category_or_retrieve(category_name)
 
         value = int(input("Valor da despesa: R$ "))
         date = input("Data da despesa: (DD/MM/YYYY): ")
         description = input("Descrição da despesa: ") # creche do juninho
 
         expense = Despesa(value, category_name, date, description)
-        category.add_expense(value) # tem que registrar objeto da classe despesa na real
+        category.add_expense(expense, user) # tem que registrar objeto da classe despesa na real
+
+        control.save()
+
+# "Educação" : {category_object} -> objeto tem um array que com múltiplos objetos da classe despesa
+
+def register_category_or_retrieve(category_name):
+        
+        if category_name not in control.get_dictionary().keys():
+            print("Categoria ainda não registrada. Cadastrando...")
+            limit = int(input(f"Limite mensal de gastos com {category_name.lower()}: R$ "))
+            category = Categoria(category_name, limit)
+            control.add_category(category_name, category)
+
+        else:
+            for category_key, category_value in control.get_dictionary().items():
+                if (category_key == category_name):
+                    category = category_value
+    
+        return category
+
+user_name = input("Digite o nome do usuário: ")
+user_mail = input("Digite o email do usuário: ")
+user = Usuario(user_name, user_mail)
 
 while True:
+
     command = get_command()
     if (command == 0):
         break
-    command_manager(command)
+    command_manager(command, user)
