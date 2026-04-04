@@ -55,6 +55,7 @@ class Categoria: # Cada objeto da classe Categoria é um literal de categoria de
         receiver_name = user.get_name()
         password = "vhvq kxyw byyv kdke"
         subject = "Infração do limite de gastos"
+        
         body = f"\nQuerido(a) {receiver_name.capitalize()},\nvocê ultrapassou seu teto de gastos na categoria {self.get_name().lower()}.\n" + f"Você gastou um total de R$ "+ str(self.get_total_spent()) + ", sendo que seu limite era de R$ " + str(self.get_limit())
 
         message = f"""From: Controle Financeiro\nTo: {receiver_name} \nSubject: {subject} \n {body}

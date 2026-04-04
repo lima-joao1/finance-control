@@ -1,6 +1,7 @@
 import json
 from Categoria import Categoria
 from Despesa import Despesa
+from fpdf import FPDF
 
 class ControleFinanceiro:
 
@@ -52,3 +53,26 @@ class ControleFinanceiro:
                 self.__history = data["history"]
         except FileNotFoundError:
             pass
+            
+    def import_to_pdf(self):
+        pdf = FPDF("L", "mm", "A4") #construtor
+        pdf.add_page() # p/ ter 1 pagina
+        pdf.set_auto_page_break(auto=True, margin=15)
+        pdf.add_font('ComicSans', '', r'C:\Windows\Fonts\comic.ttf', uni=True)         # coisa só pra poder usar comicsans
+
+        
+        pdf.set_font('ComicSans', '', 40)         # sempre depois de adicionar uma page
+        pdf.cell(0, 20, "Histórico Mensal", ln=True, align="C") # ai faz a cell 
+        pdf.ln(10)
+
+
+        pdf.set_font("ComicSans", "", 14)
+        for category_name, category_object in self.__categories.items():
+            pdf.cell(0, 10, f"{category_name} - Limite: R$ {category_object.get_limit()}", ln=True)
+            for expense in category_object.get_expenses():
+                pdf.cell(0, 10, f"    - {expense.get_description()} | R$ {expense.get_value()} | Data: {expense.get_date()}", ln=True)
+
+            pdf.cell(0, 10, f"                     - Total gasto: R$ {category_object.get_total_spent()}")
+            pdf.ln(15)
+
+        pdf.output("Histórico.pdf")
