@@ -5,7 +5,7 @@ from Usuario import Usuario
 from time import sleep
 
 def get_command():
-    print("*******  Controle Financeiro *******")
+    print("\n*******  Controle Financeiro *******")
     print("""
         1 - Adicionar nova despesa
         2 - Checar histórico mensal
@@ -14,7 +14,7 @@ def get_command():
         
         0 - Fechar programa""") # Perguntar, quando for gerar PDF, se deseja gerar apenas do mês atual ou de todos os meses.
 
-    return int(input("Digite uma opção [0, 3]: "))
+    return int(input("Digite uma opção [0, 4]: "))
 
 def command_manager(command, user):
     
@@ -51,6 +51,7 @@ def command_manager(command, user):
     elif (command == 3):
         print("Enviando PDF para o e-mail registrado...")
         control.import_to_pdf(user)
+        print("E-mail enviado!")
 
     elif (command == 4):
         print("Limpando histórico...")
