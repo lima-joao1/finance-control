@@ -2,23 +2,19 @@ from Despesa import Despesa
 from Categoria import Categoria
 from ControleFinanceiro import ControleFinanceiro
 from Usuario import Usuario
-
-
-control = ControleFinanceiro()
-control.import_to_pdf()
+from time import sleep
 
 def get_command():
     print("*******  Controle Financeiro *******")
     print("""
         1 - Adicionar nova despesa
         2 - Checar histórico mensal
-        3 - Começar novo mês
-        4 - Histórico completo
-        5 - Gerar PDF\n 
+        3 - Gerar PDF
+        4 - Limpar histórico mensal\n 
         
         0 - Fechar programa""") # Perguntar, quando for gerar PDF, se deseja gerar apenas do mês atual ou de todos os meses.
 
-    return int(input("Digite uma opção [0, 4]: "))
+    return int(input("Digite uma opção [0, 3]: "))
 
 def command_manager(command, user):
     
@@ -46,15 +42,21 @@ def command_manager(command, user):
             
             if (category_object.get_total_spent() > category_object.get_limit()):
                 print(f"\n  Total gasto: R$\033[31m {category_object.get_total_spent():.2f}\033[0m")
-                print(f"    Você gastou R$ {category_object.get_total_spent() - category_object.get_limit()} acima do limite.")
+                print(f"    Você gastou R$ {(category_object.get_total_spent() - category_object.get_limit()):.2f} acima do limite.")
             else:
                 print(f"\n  Total gasto: R$\033[92m {category_object.get_total_spent():.2f}\033[0m")
 
             print()
         
-    elif (command == 5):
+    elif (command == 3):
         print("Enviando PDF para o e-mail registrado...")
-        control.import_to_pdf()
+        control.import_to_pdf(user)
+
+    elif (command == 4):
+        print("Limpando histórico...")
+        control.clear()
+        print("Histórico limpo para começar um novo mês...")
+        sleep(3)
 
 # "Educação" : {category_object} -> objeto tem um array que com múltiplos objetos da classe despesa
 
@@ -105,6 +107,8 @@ def register_category_or_retrieve(category_name):
 user_name = input("Digite o nome do usuário: ")
 user_mail = input("Digite o email do usuário: ")
 user = Usuario(user_name, user_mail)
+
+control = ControleFinanceiro()
 
 while True:
 

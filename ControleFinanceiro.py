@@ -2,12 +2,13 @@ import json
 from Categoria import Categoria
 from Despesa import Despesa
 from fpdf import FPDF
+from pdf_mail import sendpdf
+
 
 class ControleFinanceiro:
 
     def __init__(self):
         self.__categories = {}
-        self.__history = [] # p/ manter o tracking de meses anteriores
         self.load()
 
     def add_category(self, category_name, category_object):
@@ -35,7 +36,6 @@ class ControleFinanceiro:
             }
         data = {
             "current": current_data,
-            "history": self.__history
         }
         with open("data.json", "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
@@ -50,11 +50,10 @@ class ControleFinanceiro:
                     expense = Despesa(expens["value"], expens["category"] ,expens["date"] ,expens["description"])
                     cat.get_expenses().append(expense)
                 self.__categories[name] = cat
-                self.__history = data["history"]
         except FileNotFoundError:
             pass
             
-    def import_to_pdf(self):
+    def import_to_pdf(self, user):
         pdf = FPDF("L", "mm", "A4") #construtor
         pdf.add_page() # p/ ter 1 pagina
         pdf.set_auto_page_break(auto=True, margin=15)
@@ -75,4 +74,21 @@ class ControleFinanceiro:
             pdf.cell(0, 10, f"                     - Total gasto: R$ {category_object.get_total_spent()}")
             pdf.ln(15)
 
-        pdf.output("Histórico.pdf")
+        pdf.image(r"C:\Users\joaov\Downloads\unnamed.jpg", 200, 100, 110, 110)
+
+        pdf.output("Historico.pdf")
+        self.send_pdf_email(user)
+    
+    def send_pdf_email(self, user):
+        k = sendpdf("financecontrol999@gmail.com",
+                    user.get_mail(),
+                    "vhvq kxyw byyv kdke",
+                    "Histórico Mensal de Controle Financeiro",
+                    f"Querido {user.get_name().capitalize().strip()},\n Em anexo segue o histórico financeiro mensal requisitado.",
+                    "Historico",
+                    r"C:\Users\joaov\Desktop\AA2")
+        k.email_send()
+
+    def clear(self):
+        self.__categories.clear()
+        self.save()
